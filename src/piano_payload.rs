@@ -1,8 +1,8 @@
 use crate::exports::provider::{Dict, Event};
 use anyhow::anyhow;
-use serde::{Serialize};
-use std::collections::HashMap;
 use chrono::{TimeZone, Timelike, Utc};
+use serde::Serialize;
+use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Serialize, Debug, Default)]
@@ -27,12 +27,13 @@ impl PianoPayload {
             Some(key) => key,
             None => return Err(anyhow!("Missing piano site id")),
         }
-            .to_string();
+        .to_string();
 
         let collection_domain = match cred.get("piano_collection_domain") {
             Some(key) => key,
             None => return Err(anyhow!("Missing piano collection domain")),
-        }.to_string();
+        }
+        .to_string();
 
         // todo: ID continuity
         let id_client = edgee_event.context.user.edgee_id.to_string();
@@ -96,7 +97,11 @@ impl PianoEvent {
             data.ch_ua = string_to_ch_ua(&ua_version, false);
         }
 
-        let ua_full_version = edgee_event.context.client.user_agent_full_version_list.clone();
+        let ua_full_version = edgee_event
+            .context
+            .client
+            .user_agent_full_version_list
+            .clone();
         if !ua_full_version.is_empty() {
             data.ch_ua_full_version_list = string_to_ch_ua(&ua_full_version, true);
             if !data.ch_ua_full_version_list.is_empty() {
@@ -106,14 +111,15 @@ impl PianoEvent {
         data.ch_ua_arch = edgee_event.context.client.user_agent_architecture.clone();
         data.ch_ua_bitness = edgee_event.context.client.user_agent_bitness.clone();
         let mut mobile = false;
-        if !edgee_event.context.client.user_agent_mobile.is_empty() && edgee_event.context.client.user_agent_mobile == "1" {
+        if !edgee_event.context.client.user_agent_mobile.is_empty()
+            && edgee_event.context.client.user_agent_mobile == "1"
+        {
             mobile = true;
         }
         data.ch_ua_mobile = mobile;
         data.ch_ua_model = edgee_event.context.client.user_agent_model.clone();
         data.ch_ua_platform = edgee_event.context.client.os_name.clone();
         data.ch_ua_platform_version = edgee_event.context.client.os_version.clone();
-
 
         // screen size
         if edgee_event.context.client.screen_width.is_positive() {
@@ -169,7 +175,8 @@ impl PianoEvent {
                             "at_campaign" => data.src_campaign = Some(value.clone()),
                             _ => {
                                 // replace at_ with src_
-                                data.additional_fields.insert(key.replace("at_", "src_"), parse_value(value));
+                                data.additional_fields
+                                    .insert(key.replace("at_", "src_"), parse_value(value));
                             }
                         }
                     }
@@ -339,7 +346,6 @@ fn string_to_ch_ua(string: &str, full: bool) -> Vec<ChUa> {
     }
     ch_ua_list
 }
-
 
 #[cfg(test)]
 mod tests {
