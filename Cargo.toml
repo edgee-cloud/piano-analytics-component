@@ -1,0 +1,17 @@
+[package]
+name = "piano-analytics-component"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0.92"
+chrono = "0.4.38"
+chrono-tz = "0.10.0"
+serde = { version = "1.0.214", features = ["derive"] }
+serde_json = "1.0.132"
+serde_qs = "0.13.0"
+url = "2.5.2"
+wit-bindgen = "0.34.0"

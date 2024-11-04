@@ -1,0 +1,34 @@
+name: Build and Release WASM
+
+permissions:
+  contents: write
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  check:
+    name: Build and release wasm component
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          targets: wasm32-wasip1
+      - name: Set up build environment
+        run: make install
+      - name: Wasm target
+        run: rustup target add wasm32-wasip1
+      - name: Install wasm-tools
+        run: cargo install --locked wasm-tools
+      - name: Build WASM
+        run: make build
+      - name: Upload WASM to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./piano.wasm
+          asset_name: piano.wasm
+          asset_content_type: application/wasm
