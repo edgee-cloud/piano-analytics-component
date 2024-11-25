@@ -57,10 +57,6 @@ To build the wasm file from source, you need to have installed
 Then you can run the following commands:
 
 ```bash
-
-Then you can run the following commands:
-
-```bash
 make install
 make build
 ```
