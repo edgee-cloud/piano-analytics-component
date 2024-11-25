@@ -51,12 +51,10 @@ If you've found a vulnerability or potential vulnerability in our code, please l
 
 To build the wasm file from source, you need to have installed 
 - [Rust](https://www.rust-lang.org/tools/install)
-- `wasm32-wasip1` target: run `rustup target add wasm32-wasip1`
-- `wasm-tools`: run `cargo install --locked wasm-tools`
+- `wasm32-wasip2` target: run `rustup target add wasm32-wasip2`
 
 Then you can run the following commands:
 
 ```bash
-make install
 make build
 ```
