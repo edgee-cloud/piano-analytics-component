@@ -29,5 +29,4 @@ target/
 *.pdb
 
 # Specific
-piano.wasm
-wasi_snapshot_preview1.reactor.wasm
+piano_analytics.wasm
