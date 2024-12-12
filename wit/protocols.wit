@@ -1,10 +1,11 @@
-package edgee:protocols@0.2.2;
+package edgee:protocols@0.2.3;
 
 world data-collection {
     export provider: interface {
         type dict = list<tuple<string,string>>;
 
         enum event-type { page, track, user }
+        enum consent { pending, granted, denied }
 
         record event {
             uuid: string,
@@ -14,6 +15,7 @@ world data-collection {
             event-type: event-type,
             data: data,
             context: context,
+            consent: consent,
         }
 
         variant data {
@@ -44,6 +46,7 @@ world data-collection {
         record track-data {
             name: string,
             properties: dict,
+            products: list<dict>,
         }
 
         record context {
