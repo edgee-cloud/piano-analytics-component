@@ -63,6 +63,11 @@ impl PianoEvent {
         data.event_collection_platform = "edgee".to_string();
         data.event_collection_version = "1.0.0".to_string();
 
+        // previous_url
+        if !edgee_event.context.page.referrer.is_empty() {
+            event.data.previous_url = Some(edgee_event.context.page.referrer.clone());
+        }
+
         // Locale
         let locale = edgee_event.context.client.locale.clone();
         if locale.contains("-") {
