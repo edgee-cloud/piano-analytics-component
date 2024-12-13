@@ -21,11 +21,21 @@
 
 This component implements the data collection protocol between [Piano Analytics](https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/collection-api) and [Edgee](https://www.edgee.cloud).
 
-### Protocol coverage
 
-| Page | Track | User |
-|------|-------|------|
-| ✅   | ✅    | ✅    |
+### Event mapping:
+
+Here is the mapping between Edgee events and Piano events:
+
+| Edgee event | Piano Event  |
+|-------------|-----------|
+| Page   | `page.display`      |
+| Track  | Name of the event   |
+| User   | -  |
+
+The User event is not mapped to any Piano event. That means each time you make a `user` call, Edgee won't send any event to Piano Analytics.
+
+But when you make a `user` call using Edgee's JS library or Data Layer, the `user_id`, `anonymous_id` and `properties` are stored in the user's device.
+This allows the user's data to be added to any subsequent page or follow-up calls for the user, so that you can correctly attribute these actions.
 
 ## Usage
 
