@@ -84,50 +84,8 @@ impl Guest for PianoComponent {
         }
     }
 
-    fn user(edgee_event: Event, cred_map: Dict) -> Result<EdgeeRequest, String> {
-        if let Data::User(ref data) = edgee_event.data {
-            if data.user_id.is_empty() && data.anonymous_id.is_empty() {
-                return Err("user_id or anonymous_id is not set".to_string());
-            }
-
-            let mut payload =
-                PianoPayload::new(&edgee_event, cred_map).map_err(|e| e.to_string())?;
-
-            // event
-            let mut event = PianoEvent::new("identify", &edgee_event).map_err(|e| e.to_string())?;
-
-            // User
-            //
-            // https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/collection-api#users
-            // https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/users
-            if !data.anonymous_id.is_empty() {
-                event.data.user_id = Some(data.anonymous_id.clone());
-            }
-            if !data.user_id.is_empty() {
-                event.data.user_id = Some(data.user_id.clone());
-            }
-
-            // add custom page properties
-            if !data.properties.is_empty() {
-                for (key, value) in data.properties.clone().iter() {
-                    if key == "user_category" {
-                        event.data.user_category = Some(value.clone());
-                    } else {
-                        event
-                            .data
-                            .additional_fields
-                            .insert(key.clone(), parse_value(value));
-                    }
-                }
-            }
-
-            // add event to piano payload
-            payload.events.push(event);
-
-            Ok(build_edgee_request(payload))
-        } else {
-            Err("Missing user data".to_string())
-        }
+    fn user(_edgee_event: Event, _cred_map: Dict) -> Result<EdgeeRequest, String> {
+        Err("User event not mapped to Piano Analytics".to_string())
     }
 }
 
