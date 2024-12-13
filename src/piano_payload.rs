@@ -65,7 +65,7 @@ impl PianoEvent {
 
         // previous_url
         if !edgee_event.context.page.referrer.is_empty() {
-            event.data.previous_url = Some(edgee_event.context.page.referrer.clone());
+            data.previous_url = Some(edgee_event.context.page.referrer.clone());
         }
 
         // Locale
