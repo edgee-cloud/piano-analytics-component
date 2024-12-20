@@ -1,12 +1,16 @@
 mod piano_payload;
 
 use crate::piano_payload::parse_value;
-use exports::provider::{Data, Dict, EdgeeRequest, Event, Guest};
+use exports::edgee::protocols::provider::Data;
+use exports::edgee::protocols::provider::Dict;
+use exports::edgee::protocols::provider::EdgeeRequest;
+use exports::edgee::protocols::provider::Event;
+use exports::edgee::protocols::provider::Guest;
 use piano_payload::PianoEvent;
 use piano_payload::PianoPayload;
 use std::vec;
+wit_bindgen::generate!({world: "data-collection", path: "wit", with: { "edgee:protocols/provider": generate }});
 
-wit_bindgen::generate!({world: "data-collection"});
 export!(PianoComponent);
 
 struct PianoComponent;
@@ -94,7 +98,7 @@ fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
     headers.push((String::from("content-type"), String::from("text/plain")));
 
     EdgeeRequest {
-        method: exports::provider::HttpMethod::Post,
+        method: exports::edgee::protocols::provider::HttpMethod::Post,
         url: String::from(format!(
             "https://{}/event?s={}&idclient={}",
             piano_payload.collection_domain, piano_payload.site_id, piano_payload.id_client
