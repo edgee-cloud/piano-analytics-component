@@ -74,10 +74,10 @@ impl PianoEvent {
         if locale.contains("-") {
             let parts: Vec<&str> = locale.split("-").collect();
             data.browser_language = parts[0].to_string();
-            data.browser_language_local = parts[1].to_string();
+            data.browser_language_local = parts[1].to_uppercase();
         } else {
             data.browser_language = locale.clone();
-            data.browser_language_local = locale.clone();
+            data.browser_language_local = locale.clone().to_uppercase();
         }
 
         // device hour
@@ -94,8 +94,8 @@ impl PianoEvent {
         } else {
             data.device_hour = timestamp.unwrap().hour() as i64;
         }
-        data.device_timestamp_utc = edgee_event.timestamp;
-        data.device_local_hour = edgee_event.timestamp;
+        data.device_timestamp_utc = edgee_event.timestamp_millis;
+        data.device_local_hour = edgee_event.timestamp_millis;
 
         // User Agent
         let ua_version = edgee_event.context.client.user_agent_version_list.clone();
@@ -275,6 +275,8 @@ pub(crate) struct PianoData {
     pub page_title_html: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pageview_id: Option<String>,
@@ -315,13 +317,15 @@ fn string_to_ch_ua(string: &str, full: bool) -> Vec<ChUa> {
     if string.contains("|") {
         let parts: Vec<&str> = string.split("|").collect();
         for part in parts {
-            if string.contains(";") {
+            if part.contains(";") {
                 let parts: Vec<&str> = part.split(";").collect();
-                if parts.len() != 2 {
+                if parts.len() < 2 {
                     continue;
                 }
-                let brand = parts[0];
-                let mut version = parts[1];
+                // brand is the first parts, less the last part
+                let brand = parts[0..parts.len() - 1].join(";");
+                // version is the last part
+                let mut version = parts[parts.len() - 1];
                 if !full && version.contains(".") {
                     let parts: Vec<&str> = version.split(".").collect();
                     version = parts[0];
@@ -335,11 +339,13 @@ fn string_to_ch_ua(string: &str, full: bool) -> Vec<ChUa> {
     } else {
         if string.contains(";") {
             let parts: Vec<&str> = string.split(";").collect();
-            if parts.len() != 2 {
+            if parts.len() < 2 {
                 return ch_ua_list;
             }
-            let brand = parts[0];
-            let mut version = parts[1];
+            // brand is the first parts, less the last part
+            let brand = parts[0..parts.len() - 1].join(";");
+            // version is the last part
+            let mut version = parts[parts.len() - 1];
             if !full && version.contains(".") {
                 let parts: Vec<&str> = version.split(".").collect();
                 version = parts[0];
@@ -375,6 +381,32 @@ mod tests {
         assert_eq!(result[0].version, "1");
         assert_eq!(result[1].brand, "Brand2");
         assert_eq!(result[1].version, "2");
+    }
+
+    #[test]
+    fn string_to_chua_vec_complex_entries() {
+        let input = "Chromium;128.0.6613.146|Not;A=Brand;24.0.0.0|Google Chrome;128.0.6613.146";
+        let result = string_to_ch_ua(input, false);
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0].brand, "Chromium");
+        assert_eq!(result[0].version, "128");
+        assert_eq!(result[1].brand, "Not;A=Brand");
+        assert_eq!(result[1].version, "24");
+        assert_eq!(result[2].brand, "Google Chrome");
+        assert_eq!(result[2].version, "128");
+    }
+
+    #[test]
+    fn string_to_chua_vec_complex_entries_full() {
+        let input = "Chromium;128.0.6613.146|Not;A=Brand;24.0.0.0|Google Chrome;128.0.6613.146";
+        let result = string_to_ch_ua(input, true);
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0].brand, "Chromium");
+        assert_eq!(result[0].version, "128.0.6613.146");
+        assert_eq!(result[1].brand, "Not;A=Brand");
+        assert_eq!(result[1].version, "24.0.0.0");
+        assert_eq!(result[2].brand, "Google Chrome");
+        assert_eq!(result[2].version, "128.0.6613.146");
     }
 
     #[test]

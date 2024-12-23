@@ -26,9 +26,14 @@ impl Guest for PianoComponent {
                 PianoEvent::new("page.display", &edgee_event).map_err(|e| e.to_string())?;
 
             event.data.pageview_id = Some(edgee_event.uuid.clone());
-            event.data.page_name = Some(data.name.clone());
-            event.data.content_title = Some(data.title.clone());
-            event.data.page_title_html = Some(data.title.clone());
+            if !data.name.is_empty() {
+                event.data.page_name = Some(data.name.clone());
+            }
+            if !data.title.is_empty() {
+                event.data.content_title = Some(data.title.clone());
+                event.data.page_title_html = Some(data.title.clone());
+                event.data.page = Some(data.title.clone());
+            }
             event.data.content_keywords = Some(data.keywords.clone());
             event.data.event_url_full = Some(data.url.clone());
             event.data.previous_url = Some(data.referrer.clone());
