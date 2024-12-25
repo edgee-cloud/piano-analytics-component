@@ -12,3 +12,6 @@ help:
 build: ## Build the wasi component
 	cargo build --target wasm32-wasip2 --release
 	cp ./target/wasm32-wasip2/release/piano_analytics_component.wasm piano_analytics.wasm
+
+test: ## Test the component on host platform
+	cargo test --lib
