@@ -104,10 +104,10 @@ fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
 
     EdgeeRequest {
         method: exports::edgee::protocols::provider::HttpMethod::Post,
-        url: String::from(format!(
+        url: format!(
             "https://{}/event?s={}&idclient={}",
             piano_payload.collection_domain, piano_payload.site_id, piano_payload.id_client
-        )),
+        ),
         headers,
         body: serde_json::to_string(&piano_payload).unwrap(),
     }

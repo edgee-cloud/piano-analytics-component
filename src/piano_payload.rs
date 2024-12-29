@@ -56,13 +56,15 @@ pub(crate) struct PianoEvent {
 impl PianoEvent {
     pub(crate) fn new(name: &str, edgee_event: &Event) -> anyhow::Result<Self> {
         let mut event = PianoEvent::default();
-        let mut data = PianoData::default();
-
+        
         // Standard properties
         //
         // https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/collection-api#standard-properties
-        data.event_collection_platform = "edgee".to_string();
-        data.event_collection_version = "1.0.0".to_string();
+        let mut data = PianoData {
+            event_collection_platform: "edgee".to_string(),
+            event_collection_version: "1.0.0".to_string(),
+            ..PianoData::default()
+        };
 
         // previous_url
         if !edgee_event.context.page.referrer.is_empty() {
@@ -139,7 +141,7 @@ impl PianoEvent {
 
         // cookie_creation_date
         // get the first seen date from the session and convert it to a datetime string
-        let first_seen_i64 = edgee_event.context.session.first_seen.clone();
+        let first_seen_i64 = edgee_event.context.session.first_seen;
         let first_seen_opt = chrono::DateTime::from_timestamp(first_seen_i64, 0);
         if let Some(first_seen) = first_seen_opt {
             data.cookie_creation_date = Some(first_seen.to_rfc3339());
@@ -219,7 +221,7 @@ pub fn parse_value(value: &str) -> serde_json::Value {
         serde_json::Value::from(true)
     } else if value == "false" {
         serde_json::Value::from(false)
-    } else if let Some(_v) = value.parse::<f64>().ok() {
+    } else if value.parse::<f64>().is_ok() {
         serde_json::Value::Number(value.parse().unwrap())
     } else {
         serde_json::Value::String(value.to_string())
@@ -336,26 +338,25 @@ fn string_to_ch_ua(string: &str, full: bool) -> Vec<ChUa> {
                 });
             }
         }
-    } else {
-        if string.contains(";") {
-            let parts: Vec<&str> = string.split(";").collect();
-            if parts.len() < 2 {
-                return ch_ua_list;
-            }
-            // brand is the first parts, less the last part
-            let brand = parts[0..parts.len() - 1].join(";");
-            // version is the last part
-            let mut version = parts[parts.len() - 1];
-            if !full && version.contains(".") {
-                let parts: Vec<&str> = version.split(".").collect();
-                version = parts[0];
-            }
-            ch_ua_list.push(ChUa {
-                brand: brand.to_string(),
-                version: version.to_string(),
-            });
+    } else if string.contains(";") {
+        let parts: Vec<&str> = string.split(";").collect();
+        if parts.len() < 2 {
+            return ch_ua_list;
         }
+        // brand is the first parts, less the last part
+        let brand = parts[0..parts.len() - 1].join(";");
+        // version is the last part
+        let mut version = parts[parts.len() - 1];
+        if !full && version.contains(".") {
+            let parts: Vec<&str> = version.split(".").collect();
+            version = parts[0];
+        }
+        ch_ua_list.push(ChUa {
+            brand: brand.to_string(),
+            version: version.to_string(),
+        });
     }
+    
     ch_ua_list
 }
 
