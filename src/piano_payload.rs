@@ -56,7 +56,7 @@ pub(crate) struct PianoEvent {
 impl PianoEvent {
     pub(crate) fn new(name: &str, edgee_event: &Event) -> anyhow::Result<Self> {
         let mut event = PianoEvent::default();
-        
+
         // Standard properties
         //
         // https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/collection-api#standard-properties
@@ -356,7 +356,7 @@ fn string_to_ch_ua(string: &str, full: bool) -> Vec<ChUa> {
             version: version.to_string(),
         });
     }
-    
+
     ch_ua_list
 }
 
