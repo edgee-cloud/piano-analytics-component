@@ -4,8 +4,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use crate::exports::edgee::protocols::provider::{Dict, Event};
-
+use crate::exports::edgee::protocols::provider::{Dict, Event, Consent};
 #[derive(Serialize, Debug, Default)]
 pub(crate) struct PianoPayload {
     #[serde(skip)]
@@ -147,9 +146,13 @@ impl PianoEvent {
             data.cookie_creation_date = Some(first_seen.to_rfc3339());
         }
 
-        // we set privacy consent to true and mode to optin because edgee is already handling privacy anonymization
-        data.visitor_privacy_consent = true;
-        data.visitor_privacy_mode = "optin".to_string();
+        if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
+            data.visitor_privacy_consent = true;
+            data.visitor_privacy_mode = "optin".to_string();
+        } else {
+            data.visitor_privacy_consent = false;
+            data.visitor_privacy_mode = "exempt".to_string();
+        }
 
         // Campaign
         //

@@ -10,6 +10,7 @@ help:
 		| awk 'BEGIN { FS = ":.*?## " }; { printf "\033[36m%-30s\033[0m %s\n", $$1, $$2 }'
 
 build: ## Build the wasi component
+	wit-deps
 	cargo build --target wasm32-wasip2 --release
 	cp ./target/wasm32-wasip2/release/piano_analytics_component.wasm piano_analytics.wasm
 
