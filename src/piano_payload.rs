@@ -35,8 +35,12 @@ impl PianoPayload {
         }
         .to_string();
 
-        // todo: ID continuity
-        let id_client = edgee_event.context.user.edgee_id.to_string();
+        // client_id with ID continuity if enabled
+        let id_client = if !edgee_event.context.user.component_id.is_empty() {
+            edgee_event.context.user.component_id.to_string()
+        } else {
+            edgee_event.context.user.edgee_id.to_string()
+        };
 
         Ok(Self {
             site_id,
