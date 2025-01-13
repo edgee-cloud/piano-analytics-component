@@ -15,3 +15,8 @@ serde_json = "1.0.132"
 serde_qs = "0.13.0"
 url = "2.5.3"
 wit-bindgen = "0.34.0"
+
+[dev-dependencies]
+cargo-llvm-cov = "0.6.15"
+pretty_assertions = "1.4.1"
+uuid = { version = "1.10.0", features = ["v4"] }
