@@ -44,4 +44,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - run: make test
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - run: make test.coverage
