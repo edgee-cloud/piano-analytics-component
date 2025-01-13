@@ -112,3 +112,402 @@ fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
         body: serde_json::to_string(&piano_payload).unwrap(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::exports::edgee::protocols::provider::{
+        Campaign, Client, Context, EventType, HttpMethod, PageData, Session, TrackData, UserData,
+    };
+    use exports::edgee::protocols::provider::Consent;
+    use pretty_assertions::assert_eq;
+    use uuid::Uuid;
+
+    fn sample_user_data(edgee_id: String) -> UserData {
+        return UserData {
+            user_id: "123".to_string(),
+            anonymous_id: "456".to_string(),
+            edgee_id: edgee_id,
+            properties: vec![
+                ("prop1".to_string(), "value1".to_string()),
+                ("prop2".to_string(), "10".to_string()),
+                ("user_category".to_string(), "whatever".to_string()),
+            ],
+        };
+    }
+
+    fn sample_context(
+        edgee_id: String,
+        locale: String,
+        timezone: String,
+        session_start: bool,
+    ) -> Context {
+        return Context {
+            page: sample_page_data(),
+            user: sample_user_data(edgee_id),
+            client: Client {
+                city: "Paris".to_string(),
+                ip: "192.168.0.1".to_string(),
+                locale: locale,
+                timezone: timezone,
+                user_agent: "Chrome".to_string(),
+                user_agent_architecture: "fuck knows".to_string(),
+                user_agent_bitness: "64".to_string(),
+                user_agent_full_version_list: "Brand1;1.0.0|Brand2;2.0.0".to_string(),
+                user_agent_version_list: "abc".to_string(),
+                user_agent_mobile: "1".to_string(),
+                user_agent_model: "don't know".to_string(),
+                os_name: "MacOS".to_string(),
+                os_version: "latest".to_string(),
+                screen_width: 1024,
+                screen_height: 768,
+                screen_density: 2.0,
+                continent: "Europe".to_string(),
+                country_code: "FR".to_string(),
+                country_name: "France".to_string(),
+                region: "West Europe".to_string(),
+            },
+            campaign: Campaign {
+                name: "random".to_string(),
+                source: "random".to_string(),
+                medium: "random".to_string(),
+                term: "random".to_string(),
+                content: "random".to_string(),
+                creative_format: "random".to_string(),
+                marketing_tactic: "random".to_string(),
+            },
+            session: Session {
+                session_id: "random".to_string(),
+                previous_session_id: "random".to_string(),
+                session_count: 2,
+                session_start: session_start,
+                first_seen: 123,
+                last_seen: 123,
+            },
+        };
+    }
+
+    fn sample_page_data() -> PageData {
+        return PageData {
+            name: "page name".to_string(),
+            category: "category".to_string(),
+            keywords: vec!["value1".to_string(), "value2".into()],
+            title: "page title".to_string(),
+            url: "https://example.com/full-url?test=1".to_string(),
+            path: "/full-path".to_string(),
+            search: "?at_medium=abc&at_campaign=&at_something=true&at_something_else=false"
+                .to_string(),
+            referrer: "https://example.com/another-page".to_string(),
+            properties: vec![
+                ("prop1".to_string(), "value1".to_string()),
+                ("prop2".to_string(), "10".to_string()),
+                ("has_access".to_string(), "true".to_string()),
+            ],
+        };
+    }
+
+    fn sample_page_event(
+        consent: Option<Consent>,
+        edgee_id: String,
+        locale: String,
+        timezone: String,
+        session_start: bool,
+    ) -> Event {
+        return Event {
+            uuid: Uuid::new_v4().to_string(),
+            timestamp: 123,
+            timestamp_millis: 123,
+            timestamp_micros: 123,
+            event_type: EventType::Page,
+            data: Data::Page(sample_page_data()),
+            context: sample_context(edgee_id, locale, timezone, session_start),
+            consent: consent,
+        };
+    }
+
+    fn sample_track_data(event_name: String) -> TrackData {
+        return TrackData {
+            name: event_name,
+            products: vec![], // why is this mandatory?
+            properties: vec![
+                ("prop1".to_string(), "value1".to_string()),
+                ("prop2".to_string(), "10".to_string()),
+            ],
+        };
+    }
+
+    fn sample_track_event(
+        event_name: String,
+        consent: Option<Consent>,
+        edgee_id: String,
+        locale: String,
+        timezone: String,
+        session_start: bool,
+    ) -> Event {
+        return Event {
+            uuid: Uuid::new_v4().to_string(),
+            timestamp: 123,
+            timestamp_millis: 123,
+            timestamp_micros: 123,
+            event_type: EventType::Track,
+            data: Data::Track(sample_track_data(event_name)),
+            context: sample_context(edgee_id, locale, timezone, session_start),
+            consent: consent,
+        };
+    }
+
+    fn sample_user_event(
+        consent: Option<Consent>,
+        edgee_id: String,
+        locale: String,
+        timezone: String,
+        session_start: bool,
+    ) -> Event {
+        return Event {
+            uuid: Uuid::new_v4().to_string(),
+            timestamp: 123,
+            timestamp_millis: 123,
+            timestamp_micros: 123,
+            event_type: EventType::User,
+            data: Data::User(sample_user_data(edgee_id.clone())),
+            context: sample_context(edgee_id, locale, timezone, session_start),
+            consent: consent,
+        };
+    }
+
+    fn sample_collection_domain() -> String {
+        return "ABCDEFG.pa-cd.com".to_string();
+    }
+
+    fn sample_credentials() -> Vec<(String, String)> {
+        return vec![
+            ("piano_site_id".to_string(), "abc".to_string()),
+            (
+                "piano_collection_domain".to_string(),
+                sample_collection_domain(),
+            ),
+        ];
+    }
+
+    #[test]
+    fn page_with_consent() {
+        let event = sample_page_event(
+            Some(Consent::Granted),
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::page(event, credentials);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+        assert_eq!(
+            edgee_request
+                .url
+                .starts_with(&format!("https://{}", sample_collection_domain())),
+            true
+        );
+        // add more checks (headers, querystring, etc.)
+    }
+
+    #[test]
+    fn page_without_consent() {
+        let event = sample_page_event(
+            None,
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::page(event, credentials);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+    }
+
+    #[test]
+    fn page_with_dashed_locale() {
+        let event = sample_page_event(
+            None,
+            "abc".to_string(),
+            "fr-fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::page(event, credentials);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+    }
+
+    #[test]
+    fn page_with_empty_locale() {
+        let event = sample_page_event(
+            None,
+            Uuid::new_v4().to_string(),
+            "".to_string(),
+            "CET".to_string(),
+            true,
+        );
+
+        let credentials = sample_credentials();
+        let result = PianoComponent::page(event, credentials);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+    }
+
+    #[test]
+    fn page_with_empty_timezone() {
+        let event = sample_page_event(
+            None,
+            Uuid::new_v4().to_string(),
+            "fr".to_string(),
+            "".to_string(),
+            true,
+        );
+
+        let credentials = sample_credentials();
+        let result = PianoComponent::page(event, credentials);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+    }
+
+    #[test]
+    fn page_not_session_start() {
+        let event = sample_page_event(
+            None,
+            Uuid::new_v4().to_string(),
+            "".to_string(),
+            "CET".to_string(),
+            false,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::page(event, credentials);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+    }
+
+    #[test]
+    fn page_without_site_id_fails() {
+        let event = sample_page_event(
+            None,
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials: Vec<(String, String)> = vec![]; // empty
+        let result = PianoComponent::page(event, credentials); // this should panic!
+        assert_eq!(result.is_err(), true);
+    }
+
+    #[test]
+    fn page_without_collection_domain_fails() {
+        let event = sample_page_event(
+            None,
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials: Vec<(String, String)> = vec![
+            ("piano_site_id".to_string(), "abc".to_string()), // only site ID
+        ];
+        let result = PianoComponent::page(event, credentials); // this should panic!
+        assert_eq!(result.is_err(), true);
+    }
+
+    #[test]
+    fn track_with_consent() {
+        let event = sample_track_event(
+            "event-name".to_string(),
+            Some(Consent::Granted),
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::track(event, credentials);
+        assert_eq!(result.clone().is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert_eq!(edgee_request.body.len() > 0, true);
+    }
+
+    #[test]
+    fn track_with_empty_name_fails() {
+        let event = sample_track_event(
+            "".to_string(),
+            Some(Consent::Granted),
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::track(event, credentials);
+        assert_eq!(result.is_err(), true);
+    }
+
+    #[test]
+    fn user_event() {
+        let event = sample_user_event(
+            Some(Consent::Granted),
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let credentials = sample_credentials();
+        let result = PianoComponent::user(event, credentials);
+
+        assert_eq!(result.clone().is_err(), true);
+        assert_eq!(
+            result
+                .clone()
+                .err()
+                .unwrap()
+                .to_string()
+                .contains("not mapped"),
+            true
+        );
+    }
+
+    #[test]
+    fn track_event_without_user_context_properties_and_empty_user_id() {
+        let mut event = sample_track_event(
+            "event-name".to_string(),
+            Some(Consent::Granted),
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        event.context.user.properties = vec![]; // empty context user properties
+        event.context.user.user_id = "".to_string(); // empty context user id
+        let credentials = sample_credentials();
+        let result = PianoComponent::track(event, credentials);
+        //println!("Error: {}", result.clone().err().unwrap().to_string().as_str());
+        assert_eq!(result.clone().is_err(), false);
+    }
+}
