@@ -4,7 +4,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use crate::exports::edgee::protocols::provider::{Consent, Dict, Event};
+use crate::exports::edgee::protocols::data_collection::{Consent, Dict, Event};
 #[derive(Serialize, Debug, Default)]
 pub(crate) struct PianoPayload {
     #[serde(skip)]

@@ -1,5 +1,5 @@
-package edgee:pianocomponent;
+package edgee:native;
 
-world data-collection {
-  export edgee:protocols/provider;
+world edgee {
+  export edgee:protocols/data-collection;
 }
