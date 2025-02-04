@@ -17,8 +17,8 @@ pub(crate) struct PianoPayload {
 }
 
 impl PianoPayload {
-    pub(crate) fn new(edgee_event: &Event, cred_map: Dict) -> anyhow::Result<Self> {
-        let cred: HashMap<String, String> = cred_map
+    pub(crate) fn new(edgee_event: &Event, settings: Dict) -> anyhow::Result<Self> {
+        let cred: HashMap<String, String> = settings
             .iter()
             .map(|(key, value)| (key.to_string(), value.to_string()))
             .collect();
@@ -175,6 +175,7 @@ impl PianoEvent {
         }
         if !edgee_event.context.page.search.is_empty() {
             // analyze search string
+            // todo, add utm_ and lmd_
             let qs = serde_qs::from_str(edgee_event.context.page.search.as_str());
             if qs.is_ok() {
                 let qs_map: HashMap<String, String> = qs.unwrap();
