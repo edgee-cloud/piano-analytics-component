@@ -16,10 +16,10 @@ export!(PianoComponent);
 struct PianoComponent;
 
 impl Guest for PianoComponent {
-    fn page(edgee_event: Event, cred_map: Dict) -> Result<EdgeeRequest, String> {
+    fn page(edgee_event: Event, settings: Dict) -> Result<EdgeeRequest, String> {
         if let Data::Page(ref data) = edgee_event.data {
             let mut payload =
-                PianoPayload::new(&edgee_event, cred_map).map_err(|e| e.to_string())?;
+                PianoPayload::new(&edgee_event, settings).map_err(|e| e.to_string())?;
 
             // page_view event
             let mut event =
@@ -62,14 +62,14 @@ impl Guest for PianoComponent {
         }
     }
 
-    fn track(edgee_event: Event, cred_map: Dict) -> Result<EdgeeRequest, String> {
+    fn track(edgee_event: Event, settings: Dict) -> Result<EdgeeRequest, String> {
         if let Data::Track(ref data) = edgee_event.data {
             if data.name.is_empty() {
                 return Err("Missing event name".to_string());
             }
 
             let mut payload =
-                PianoPayload::new(&edgee_event, cred_map).map_err(|e| e.to_string())?;
+                PianoPayload::new(&edgee_event, settings).map_err(|e| e.to_string())?;
 
             // event
             let mut event =
@@ -93,7 +93,7 @@ impl Guest for PianoComponent {
         }
     }
 
-    fn user(_edgee_event: Event, _cred_map: Dict) -> Result<EdgeeRequest, String> {
+    fn user(_edgee_event: Event, _settings: Dict) -> Result<EdgeeRequest, String> {
         Err("User event not mapped to Piano Analytics".to_string())
     }
 }
@@ -109,6 +109,7 @@ fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
             piano_payload.collection_domain, piano_payload.site_id, piano_payload.id_client
         ),
         headers,
+        forward_client_headers: true,
         body: serde_json::to_string(&piano_payload).unwrap(),
     }
 }
@@ -279,7 +280,7 @@ mod tests {
         "ABCDEFG.pa-cd.com".to_string()
     }
 
-    fn sample_credentials() -> Vec<(String, String)> {
+    fn sample_settings() -> Vec<(String, String)> {
         vec![
             ("piano_site_id".to_string(), "abc".to_string()),
             (
@@ -298,8 +299,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::page(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
 
         assert_eq!(result.is_err(), false);
         let edgee_request = result.unwrap();
@@ -323,8 +324,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::page(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
 
         assert_eq!(result.is_err(), false);
         let edgee_request = result.unwrap();
@@ -341,8 +342,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::page(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
 
         assert_eq!(result.is_err(), false);
         let edgee_request = result.unwrap();
@@ -360,8 +361,8 @@ mod tests {
             true,
         );
 
-        let credentials = sample_credentials();
-        let result = PianoComponent::page(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
 
         assert_eq!(result.is_err(), false);
         let edgee_request = result.unwrap();
@@ -379,8 +380,8 @@ mod tests {
             true,
         );
 
-        let credentials = sample_credentials();
-        let result = PianoComponent::page(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
 
         assert_eq!(result.is_err(), false);
         let edgee_request = result.unwrap();
@@ -397,8 +398,8 @@ mod tests {
             "CET".to_string(),
             false,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::page(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
 
         assert_eq!(result.is_err(), false);
         let edgee_request = result.unwrap();
@@ -415,8 +416,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials: Vec<(String, String)> = vec![]; // empty
-        let result = PianoComponent::page(event, credentials); // this should panic!
+        let settings: Vec<(String, String)> = vec![]; // empty
+        let result = PianoComponent::page(event, settings); // this should panic!
         assert_eq!(result.is_err(), true);
     }
 
@@ -429,10 +430,10 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials: Vec<(String, String)> = vec![
+        let settings: Vec<(String, String)> = vec![
             ("piano_site_id".to_string(), "abc".to_string()), // only site ID
         ];
-        let result = PianoComponent::page(event, credentials); // this should panic!
+        let result = PianoComponent::page(event, settings); // this should panic!
         assert_eq!(result.is_err(), true);
     }
 
@@ -446,8 +447,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::track(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::track(event, settings);
         assert_eq!(result.clone().is_err(), false);
         let edgee_request = result.unwrap();
         assert_eq!(edgee_request.method, HttpMethod::Post);
@@ -464,8 +465,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::track(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::track(event, settings);
         assert_eq!(result.is_err(), true);
     }
 
@@ -478,8 +479,8 @@ mod tests {
             "CET".to_string(),
             true,
         );
-        let credentials = sample_credentials();
-        let result = PianoComponent::user(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::user(event, settings);
 
         assert_eq!(result.clone().is_err(), true);
         assert_eq!(
@@ -505,8 +506,8 @@ mod tests {
         );
         event.context.user.properties = vec![]; // empty context user properties
         event.context.user.user_id = "".to_string(); // empty context user id
-        let credentials = sample_credentials();
-        let result = PianoComponent::track(event, credentials);
+        let settings = sample_settings();
+        let result = PianoComponent::track(event, settings);
         //println!("Error: {}", result.clone().err().unwrap().to_string().as_str());
         assert_eq!(result.clone().is_err(), false);
     }

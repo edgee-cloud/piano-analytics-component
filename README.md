@@ -20,11 +20,11 @@ This component implements the data collection protocol between [Edgee](https://w
 3. Add the following configuration to your `edgee.toml`:
 
 ```toml
-[[destinations.data_collection]]
-name = "piano"
-component = "/var/edgee/components/piano.wasm"
-credentials.piano_site_id = "..."
-credentials.piano_collection_domain = "..."
+[[components.data_collection]]
+id = "piano"
+file = "/var/edgee/components/piano.wasm"
+settings.piano_site_id = "..."
+settings.piano_collection_domain = "..."
 ```
 
 ## Event Handling
@@ -48,23 +48,23 @@ While User events don't generate Piano Analytics events directly, they serve an 
 
 ### Basic Configuration
 ```toml
-[[destinations.data_collection]]
-name = "piano"
-component = "/var/edgee/components/piano.wasm"
-credentials.piano_site_id = "..."
-credentials.piano_collection_domain = "..."
+[[components.data_collection]]
+id = "piano"
+file = "/var/edgee/components/piano.wasm"
+settings.piano_site_id = "..."
+settings.piano_collection_domain = "..."
 
 # Optional configurations
-config.anonymization = true        # Enable/disable data anonymization in case of pending or denied consent
-config.default_consent = "pending" # Set default consent status if not specified by the user
+settings.edgee_anonymization = true        # Enable/disable data anonymization in case of pending or denied consent
+settings.edgee_default_consent = "pending" # Set default consent status if not specified by the user
 ```
 
 ### Event Controls
 Control which events are forwarded to Piano Analytics:
 ```toml
-config.page_event_enabled = true   # Enable/disable page event
-config.track_event_enabled = true  # Enable/disable track event
-config.user_event_enabled = true   # Enable/disable user event
+settings.edgee_page_event_enabled = true   # Enable/disable page event
+settings.edgee_track_event_enabled = true  # Enable/disable track event
+settings.edgee_user_event_enabled = true   # Enable/disable user event
 ```
 
 ### Consent Management
