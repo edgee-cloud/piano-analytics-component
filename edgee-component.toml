@@ -1,0 +1,36 @@
+manifest-version = 1
+
+[component]
+name = "Piano Analytics"
+version = "0.7.0"
+category = "data-collection"
+subcategory = "analytics"
+description = """
+Piano Analytics, known for its precise analytics and data management platform, can be integrated directly through Edgee,
+enabling you to harness its powerful analytics tools without the need for embedding any additional scripts on your site. This edge-based integration significantly boosts site performance while adhering to the highest standards of user privacy.
+> - Precise analytics. Get a complete understanding of your customers across devices and platforms.
+> - Data management platform. Understand the customer journey and improve marketing ROI.
+> - Edge-based integration. Harness powerful analytics tools without the need for embedding additional scripts on your site.
+> - Boost site performance. Adhere to the highest standards of user privacy."""
+documentation = "https://www.edgee.cloud/docs/components/data-collection/piano-analytics"
+repository = "https://github.com/edgee-cloud/piano-analytics-component"
+wit-world-version = "0.4.0"
+
+[component.build]
+command = "cargo build --target wasm32-wasip2 --release && cp ./target/wasm32-wasip2/release/piano_analytics_component.wasm piano_analytics.wasm"
+output_path = "piano_analytics.wasm"
+
+[component.settings.piano_site_id]
+title = "Site ID"
+type = "string"
+required = true
+description = """
+ID of the site the data belongs to"""
+
+[component.settings.piano_collection_domain]
+title = "Collection Domain"
+type = "string"
+required = true
+description = """
+Collection endpoint for your organization"""
+
