@@ -30,3 +30,4 @@ target/
 
 # Specific
 piano_analytics.wasm
+lcov.info
