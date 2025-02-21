@@ -15,10 +15,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: wasm32-wasip2
-      - name: Wasm target
-        run: rustup target add wasm32-wasip2
-      - name: Install wasm-tools
-        run: cargo install --locked wasm-tools
       - name: Build WASM
         run: make build
       - name: Upload WASM to release
