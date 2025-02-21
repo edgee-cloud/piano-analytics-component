@@ -1,11 +1,11 @@
 mod piano_payload;
 
 use crate::piano_payload::parse_value;
-use exports::edgee::protocols::data_collection::Data;
-use exports::edgee::protocols::data_collection::Dict;
-use exports::edgee::protocols::data_collection::EdgeeRequest;
-use exports::edgee::protocols::data_collection::Event;
-use exports::edgee::protocols::data_collection::Guest;
+use exports::edgee::components::data_collection::Data;
+use exports::edgee::components::data_collection::Dict;
+use exports::edgee::components::data_collection::EdgeeRequest;
+use exports::edgee::components::data_collection::Event;
+use exports::edgee::components::data_collection::Guest;
 use piano_payload::PianoEvent;
 use piano_payload::PianoPayload;
 use std::vec;
@@ -103,7 +103,7 @@ fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
     headers.push((String::from("content-type"), String::from("text/plain")));
 
     EdgeeRequest {
-        method: exports::edgee::protocols::data_collection::HttpMethod::Post,
+        method: exports::edgee::components::data_collection::HttpMethod::Post,
         url: format!(
             "https://{}/event?s={}&idclient={}",
             piano_payload.collection_domain, piano_payload.site_id, piano_payload.id_client
@@ -117,10 +117,10 @@ fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::exports::edgee::protocols::data_collection::{
+    use crate::exports::edgee::components::data_collection::{
         Campaign, Client, Context, EventType, HttpMethod, PageData, Session, TrackData, UserData,
     };
-    use exports::edgee::protocols::data_collection::Consent;
+    use exports::edgee::components::data_collection::Consent;
     use pretty_assertions::assert_eq;
     use uuid::Uuid;
 
