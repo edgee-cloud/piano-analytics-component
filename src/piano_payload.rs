@@ -142,7 +142,12 @@ impl PianoEvent {
         let first_seen_i64 = edgee_event.context.session.first_seen;
         let first_seen_opt = chrono::DateTime::from_timestamp(first_seen_i64, 0);
         if let Some(first_seen) = first_seen_opt {
-            data.cookie_creation_date = Some(first_seen.to_rfc3339());
+            let midnight = first_seen
+                .date_naive()
+                .and_hms_opt(0, 0, 0)
+                .unwrap()
+                .and_utc();
+            data.cookie_creation_date = Some(midnight.to_rfc3339());
         }
 
         if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
