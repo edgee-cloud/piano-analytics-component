@@ -111,7 +111,12 @@ impl PianoEvent {
         if !ua_full_version.is_empty() {
             data.ch_ua_full_version_list = string_to_ch_ua(&ua_full_version, true);
             if !data.ch_ua_full_version_list.is_empty() {
-                data.ch_ua_full_version = data.ch_ua_full_version_list[0].version.clone();
+                data.ch_ua_full_version = data
+                    .ch_ua_full_version_list
+                    .iter()
+                    .find(|ua| !ua.brand.starts_with("Not"))
+                    .map(|ua| ua.version.clone())
+                    .unwrap_or_else(|| data.ch_ua_full_version_list[0].version.clone());
             }
         }
         data.ch_ua_arch = edgee_event.context.client.user_agent_architecture.clone();
