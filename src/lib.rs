@@ -25,7 +25,6 @@ impl Guest for PianoComponent {
             let mut event =
                 PianoEvent::new("page.display", &edgee_event).map_err(|e| e.to_string())?;
 
-            event.data.pageview_id = Some(edgee_event.uuid.clone());
             if !data.name.is_empty() {
                 event.data.page_name = Some(data.name.clone());
             }
