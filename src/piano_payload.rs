@@ -64,6 +64,9 @@ impl PianoEvent {
             ..PianoData::default()
         };
 
+        // pageview_id (even if the event is not a pageview, we set the pageview_id to the event uuid)
+        data.pageview_id = Some(edgee_event.uuid.clone());
+
         // previous_url
         if !edgee_event.context.page.referrer.is_empty() {
             data.previous_url = Some(edgee_event.context.page.referrer.clone());
