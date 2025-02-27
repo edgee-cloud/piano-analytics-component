@@ -159,6 +159,21 @@ impl PianoEvent {
             data.cookie_creation_date = Some(midnight.to_rfc3339());
         }
 
+        if edgee_event.consent.is_some() {
+            let consent = match edgee_event.consent {
+                Some(Consent::Granted) => "granted",
+                Some(Consent::Denied) => "denied",
+                Some(Consent::Pending) => "pending",
+                _ => "",
+            };
+            if !consent.is_empty() {
+                data.additional_fields.insert(
+                    "consent_edgee".to_string(),
+                    serde_json::Value::String(consent.to_string()),
+                );
+            }
+        }
+
         if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
             data.visitor_privacy_consent = true;
             data.visitor_privacy_mode = "optin".to_string();
