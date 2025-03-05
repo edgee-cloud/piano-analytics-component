@@ -15,6 +15,7 @@ enabling you to harness its powerful analytics tools without the need for embedd
 documentation = "https://www.edgee.cloud/docs/components/data-collection/piano-analytics"
 repository = "https://github.com/edgee-cloud/piano-analytics-component"
 wit-world-version = "0.5.0"
+icon-path = "piano_analytics.png"
 
 [component.build]
 command = "cargo build --target wasm32-wasip2 --release && cp ./target/wasm32-wasip2/release/piano_analytics_component.wasm piano_analytics.wasm"
