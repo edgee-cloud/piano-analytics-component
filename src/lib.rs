@@ -100,12 +100,14 @@ impl Guest for PianoComponent {
 fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
     let mut headers = vec![];
     headers.push((String::from("content-type"), String::from("text/plain")));
+    let cookie_string = format!("atid={}", piano_payload.id_client);
+    headers.push((String::from("cookie"), cookie_string));
 
     EdgeeRequest {
         method: exports::edgee::components::data_collection::HttpMethod::Post,
         url: format!(
-            "https://{}/event?s={}&idclient={}",
-            piano_payload.collection_domain, piano_payload.site_id, piano_payload.id_client
+            "https://{}/event?s={}",
+            piano_payload.collection_domain, piano_payload.site_id
         ),
         headers,
         forward_client_headers: true,

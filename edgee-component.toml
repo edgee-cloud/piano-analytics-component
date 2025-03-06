@@ -1,7 +1,7 @@
 manifest-version = 1
 
 [component]
-name = "Piano Analytics"
+name = "Piano for Le Monde"
 version = "0.8.1"
 category = "data-collection"
 subcategory = "analytics"
@@ -13,7 +13,7 @@ enabling you to harness its powerful analytics tools without the need for embedd
 > - Edge-based integration. Harness powerful analytics tools without the need for embedding additional scripts on your site.
 > - Boost site performance. Adhere to the highest standards of user privacy."""
 documentation = "https://www.edgee.cloud/docs/components/data-collection/piano-analytics"
-repository = "https://github.com/edgee-cloud/piano-analytics-component"
+repository = "https://github.com/sachamorard/lemonde-piano-component"
 wit-world-version = "0.5.0"
 icon-path = "piano_analytics.png"
 
