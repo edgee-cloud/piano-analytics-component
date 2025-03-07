@@ -44,6 +44,16 @@ impl Guest for PianoComponent {
                 for (key, value) in data.properties.clone().iter() {
                     if key == "has_access" {
                         event.data.has_access = Some(value.clone());
+                    } else if key == "tags" {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                        let tags_array = value.split('|').map(|s| s.trim()).collect::<Vec<&str>>();
+                        event.data.additional_fields.insert(
+                            "tags_array".to_string(),
+                            serde_json::Value::Array(tags_array.iter().map(|s| serde_json::Value::String(s.to_string())).collect()),
+                        );
                     } else {
                         event
                             .data
@@ -77,10 +87,22 @@ impl Guest for PianoComponent {
             // add custom page properties
             if !data.properties.is_empty() {
                 for (key, value) in data.properties.clone().iter() {
-                    event
-                        .data
-                        .additional_fields
-                        .insert(key.clone(), parse_value(value));
+                    if key == "tags" {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                        let tags_array = value.split('|').map(|s| s.trim()).collect::<Vec<&str>>();
+                        event.data.additional_fields.insert(
+                            "tags_array".to_string(),
+                            serde_json::Value::Array(tags_array.iter().map(|s| serde_json::Value::String(s.to_string())).collect()),
+                        );
+                    } else {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                    }
                 }
             }
 
