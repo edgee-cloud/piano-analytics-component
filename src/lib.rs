@@ -151,7 +151,7 @@ mod tests {
                 locale,
                 timezone,
                 user_agent: "Chrome".to_string(),
-                user_agent_architecture: "fuck knows".to_string(),
+                user_agent_architecture: "x86".to_string(),
                 user_agent_bitness: "64".to_string(),
                 user_agent_full_version_list: "Brand1;1.0.0|Brand2;2.0.0".to_string(),
                 user_agent_version_list: "abc".to_string(),
