@@ -2,7 +2,7 @@ manifest-version = 1
 
 [component]
 name = "Piano Analytics"
-version = "0.8.1"
+version = "1.0.0"
 category = "data-collection"
 subcategory = "analytics"
 description = """
