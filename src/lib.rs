@@ -9,7 +9,7 @@ use exports::edgee::components::data_collection::Guest;
 use piano_payload::PianoEvent;
 use piano_payload::PianoPayload;
 use std::vec;
-wit_bindgen::generate!({world: "data-collection", path: "wit", generate_all});
+wit_bindgen::generate!({world: "data-collection", path: ".edgee/wit", generate_all});
 
 export!(PianoComponent);
 
