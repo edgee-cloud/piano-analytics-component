@@ -15,8 +15,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: wasm32-wasip2
-      - name: Build WASM
-        run: make build
+      - uses: edgee-cloud/install-edgee-cli@v0.1.0
+      - run: edgee component build
       - name: Upload WASM to release
         uses: actions/upload-release-asset@v1
         env:
