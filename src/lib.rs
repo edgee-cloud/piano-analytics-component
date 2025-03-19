@@ -44,6 +44,17 @@ impl Guest for PianoComponent {
                 for (key, value) in data.properties.clone().iter() {
                     if key == "has_access" {
                         event.data.has_access = Some(value.clone());
+                    } else if key == "beneficiaire"
+                        || key == "consent_at"
+                        || key == "optin_lm"
+                        || key == "optin_lm_partenaires"
+                        || key == "site_level2"
+                        || key == "refresh"
+                    {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.to_string(), serde_json::Value::String(value.clone()));
                     } else if key == "tags" {
                         event
                             .data
@@ -52,7 +63,12 @@ impl Guest for PianoComponent {
                         let tags_array = value.split('|').map(|s| s.trim()).collect::<Vec<&str>>();
                         event.data.additional_fields.insert(
                             "tags_array".to_string(),
-                            serde_json::Value::Array(tags_array.iter().map(|s| serde_json::Value::String(s.to_string())).collect()),
+                            serde_json::Value::Array(
+                                tags_array
+                                    .iter()
+                                    .map(|s| serde_json::Value::String(s.to_string()))
+                                    .collect(),
+                            ),
                         );
                     } else {
                         event
@@ -95,8 +111,24 @@ impl Guest for PianoComponent {
                         let tags_array = value.split('|').map(|s| s.trim()).collect::<Vec<&str>>();
                         event.data.additional_fields.insert(
                             "tags_array".to_string(),
-                            serde_json::Value::Array(tags_array.iter().map(|s| serde_json::Value::String(s.to_string())).collect()),
+                            serde_json::Value::Array(
+                                tags_array
+                                    .iter()
+                                    .map(|s| serde_json::Value::String(s.to_string()))
+                                    .collect(),
+                            ),
                         );
+                    } else if key == "beneficiaire"
+                        || key == "consent_at"
+                        || key == "optin_lm"
+                        || key == "optin_lm_partenaires"
+                        || key == "site_level2"
+                        || key == "refresh"
+                    {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.to_string(), serde_json::Value::String(value.clone()));
                     } else {
                         event
                             .data

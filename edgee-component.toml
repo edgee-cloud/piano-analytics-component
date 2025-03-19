@@ -2,7 +2,7 @@ manifest-version = 1
 
 [component]
 name = "Piano for Le Monde"
-version = "0.8.2"
+version = "0.8.3"
 category = "data-collection"
 subcategory = "analytics"
 description = """
@@ -14,7 +14,7 @@ enabling you to harness its powerful analytics tools without the need for embedd
 > - Boost site performance. Adhere to the highest standards of user privacy."""
 documentation = "https://www.edgee.cloud/docs/components/data-collection/piano-analytics"
 repository = "https://github.com/sachamorard/lemonde-piano-component"
-wit-world-version = "0.5.0"
+wit-version = "1.0.0"
 icon-path = "piano_analytics.png"
 
 [component.build]
