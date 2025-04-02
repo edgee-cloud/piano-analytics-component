@@ -212,10 +212,12 @@ impl PianoEvent {
                 data.src_content = Some(edgee_event.context.campaign.content.clone());
             }
             if !edgee_event.context.campaign.creative_format.is_empty() {
-                data.src_creative_format = Some(edgee_event.context.campaign.creative_format.clone());
+                data.src_creative_format =
+                    Some(edgee_event.context.campaign.creative_format.clone());
             }
             if !edgee_event.context.campaign.marketing_tactic.is_empty() {
-                data.src_marketing_tactic = Some(edgee_event.context.campaign.marketing_tactic.clone());
+                data.src_marketing_tactic =
+                    Some(edgee_event.context.campaign.marketing_tactic.clone());
             }
             if !edgee_event.context.campaign.term.is_empty() {
                 data.src_term = Some(edgee_event.context.campaign.term.clone());
@@ -252,11 +254,17 @@ impl PianoEvent {
                                 "at_campaign" => data.src_campaign = Some(value.clone()),
                                 "at_content" => data.src_content = Some(value.clone()),
                                 "at_medium" => data.src_medium = Some(value.clone()),
-                                "at_creative_format" => data.src_creative_format = Some(value.clone()),
+                                "at_creative_format" => {
+                                    data.src_creative_format = Some(value.clone())
+                                }
                                 "at_id" => data.src_id = Some(value.clone()),
-                                "at_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                                "at_marketing_tactic" => {
+                                    data.src_marketing_tactic = Some(value.clone())
+                                }
                                 "at_source" => data.src_source = Some(value.clone()),
-                                "at_source_platform" => data.src_source_platform = Some(value.clone()),
+                                "at_source_platform" => {
+                                    data.src_source_platform = Some(value.clone())
+                                }
                                 "at_term" => data.src_term = Some(value.clone()),
                                 _ => {
                                     // replace at_ with src_
@@ -270,11 +278,17 @@ impl PianoEvent {
                                 "lmd_campaign" => data.src_campaign = Some(value.clone()),
                                 "lmd_content" => data.src_content = Some(value.clone()),
                                 "lmd_medium" => data.src_medium = Some(value.clone()),
-                                "lmd_creative_format" => data.src_creative_format = Some(value.clone()),
+                                "lmd_creative_format" => {
+                                    data.src_creative_format = Some(value.clone())
+                                }
                                 "lmd_id" => data.src_id = Some(value.clone()),
-                                "lmd_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                                "lmd_marketing_tactic" => {
+                                    data.src_marketing_tactic = Some(value.clone())
+                                }
                                 "lmd_source" => data.src_source = Some(value.clone()),
-                                "lmd_source_platform" => data.src_source_platform = Some(value.clone()),
+                                "lmd_source_platform" => {
+                                    data.src_source_platform = Some(value.clone())
+                                }
                                 "lmd_term" => data.src_term = Some(value.clone()),
                                 _ => {
                                     // replace lmd_ with src_

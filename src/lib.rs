@@ -35,7 +35,7 @@ impl Guest for PianoComponent {
                 event.data.page = Some(data.title.clone());
             }
             event.data.content_keywords = Some(data.keywords.clone());
-            
+
             // event_url_full
             if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
                 event.data.event_url_full = Some(data.url.clone());
@@ -44,7 +44,7 @@ impl Guest for PianoComponent {
                 let url = url.split('?').next().unwrap_or(url.as_str());
                 event.data.event_url_full = Some(url.to_string());
             }
-            
+
             event.data.previous_url = Some(data.referrer.clone());
 
             event.data.has_access = Some("anon".to_string());
