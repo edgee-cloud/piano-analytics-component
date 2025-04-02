@@ -230,25 +230,26 @@ impl PianoEvent {
                 if qs.is_ok() {
                     let qs_map: HashMap<String, String> = qs.unwrap();
                     for (key, value) in qs_map.iter() {
-                        // todo: activate if needed
-                        // if key.starts_with("utm_") {
-                        //     match key.as_str() {
-                        //         "utm_campaign" => data.src_campaign = Some(value.clone()),
-                        //         "utm_content" => data.src_content = Some(value.clone()),
-                        //         "utm_medium" => data.src_medium = Some(value.clone()),
-                        //         "utm_creative_format" => data.src_creative_format = Some(value.clone()),
-                        //         "utm_id" => data.src_id = Some(value.clone()),
-                        //         "utm_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
-                        //         "utm_source" => data.src_source = Some(value.clone()),
-                        //         "utm_source_platform" => data.src_source_platform = Some(value.clone()),
-                        //         "utm_term" => data.src_term = Some(value.clone()),
-                        //         _ => {
-                        //             // replace at_ with src_
-                        //             data.additional_fields
-                        //                 .insert(key.replace("utm_", "src_"), parse_value(value));
-                        //         }
-                        //     }
-                        // }
+                        if key.starts_with("utm_") {
+                            match key.as_str() {
+                                "utm_campaign" => data.src_campaign = Some(value.clone()),
+                                "utm_content" => data.src_content = Some(value.clone()),
+                                "utm_medium" => data.src_medium = Some(value.clone()),
+                                "utm_creative_format" => data.src_creative_format = Some(value.clone()),
+                                "utm_id" => data.src_id = Some(value.clone()),
+                                "utm_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                                "utm_source" => data.src_source = Some(value.clone()),
+                                "utm_source_platform" => data.src_source_platform = Some(value.clone()),
+                                "utm_term" => data.src_term = Some(value.clone()),
+                                _ => {
+                                    // replace utm_ with src_
+                                    data.additional_fields
+                                        .insert(key.replace("utm_", "src_"), parse_value(value));
+                                    data.additional_fields
+                                        .insert(key.clone(), parse_value(value));
+                                }
+                            }
+                        }
                         if key.starts_with("at_") {
                             match key.as_str() {
                                 "at_campaign" => data.src_campaign = Some(value.clone()),
