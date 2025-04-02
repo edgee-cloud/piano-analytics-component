@@ -228,7 +228,9 @@ impl PianoEvent {
                             "at_medium" => data.src_medium = Some(value.clone()),
                             "at_creative_format" => data.src_creative_format = Some(value.clone()),
                             "at_id" => data.src_id = Some(value.clone()),
-                            "at_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                            "at_marketing_tactic" => {
+                                data.src_marketing_tactic = Some(value.clone())
+                            }
                             "at_source" => data.src_source = Some(value.clone()),
                             "at_source_platform" => data.src_source_platform = Some(value.clone()),
                             "at_term" => data.src_term = Some(value.clone()),
