@@ -68,6 +68,17 @@ impl PianoEvent {
         // pageview_id (even if the event is not a pageview, we set the pageview_id to the event uuid)
         data.pageview_id = Some(edgee_event.uuid.clone());
 
+        // event_url_full
+        if !edgee_event.context.page.url.is_empty() {
+            if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
+                data.event_url_full = Some(edgee_event.context.page.url.clone());
+            } else {
+                let url = edgee_event.context.page.url.clone();
+                let url = url.split('?').next().unwrap_or(url.as_str());
+                data.event_url_full = Some(url.to_string());
+            }
+        }
+
         // previous_url
         if !edgee_event.context.page.referrer.is_empty() {
             data.previous_url = Some(edgee_event.context.page.referrer.clone());
@@ -182,41 +193,94 @@ impl PianoEvent {
             data.visitor_privacy_mode = "exempt".to_string();
         }
 
-        // Campaign
+        // Campaign, only if consent is granted
         //
         // We first use the standard campaign parameters coming from UTM, then we override them with the at_* parameters
         // get all at_* properties from edgee_event.context.page.search and add them to data.src_* properties
         // https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/marketing-campaigns
-        if !edgee_event.context.campaign.medium.is_empty() {
-            data.src_medium = Some(edgee_event.context.campaign.medium.clone());
-        }
-        if !edgee_event.context.campaign.name.is_empty() {
-            data.src_campaign = Some(edgee_event.context.campaign.name.clone());
-        }
-        if !edgee_event.context.campaign.source.is_empty() {
-            data.src_source = Some(edgee_event.context.campaign.source.clone());
-        }
-        if !edgee_event.context.campaign.content.is_empty() {
-            data.src_content = Some(edgee_event.context.campaign.content.clone());
-        }
-        if !edgee_event.context.campaign.term.is_empty() {
-            data.src_term = Some(edgee_event.context.campaign.term.clone());
-        }
-        if !edgee_event.context.page.search.is_empty() {
-            // analyze search string
-            // todo, add utm_ and lmd_
-            let qs = serde_qs::from_str(edgee_event.context.page.search.as_str());
-            if qs.is_ok() {
-                let qs_map: HashMap<String, String> = qs.unwrap();
-                for (key, value) in qs_map.iter() {
-                    if key.starts_with("at_") {
-                        match key.as_str() {
-                            "at_medium" => data.src_medium = Some(value.clone()),
-                            "at_campaign" => data.src_campaign = Some(value.clone()),
-                            _ => {
-                                // replace at_ with src_
-                                data.additional_fields
-                                    .insert(key.replace("at_", "src_"), parse_value(value));
+        if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
+            if !edgee_event.context.campaign.medium.is_empty() {
+                data.src_medium = Some(edgee_event.context.campaign.medium.clone());
+            }
+            if !edgee_event.context.campaign.name.is_empty() {
+                data.src_campaign = Some(edgee_event.context.campaign.name.clone());
+            }
+            if !edgee_event.context.campaign.source.is_empty() {
+                data.src_source = Some(edgee_event.context.campaign.source.clone());
+            }
+            if !edgee_event.context.campaign.content.is_empty() {
+                data.src_content = Some(edgee_event.context.campaign.content.clone());
+            }
+            if !edgee_event.context.campaign.creative_format.is_empty() {
+                data.src_creative_format = Some(edgee_event.context.campaign.creative_format.clone());
+            }
+            if !edgee_event.context.campaign.marketing_tactic.is_empty() {
+                data.src_marketing_tactic = Some(edgee_event.context.campaign.marketing_tactic.clone());
+            }
+            if !edgee_event.context.campaign.term.is_empty() {
+                data.src_term = Some(edgee_event.context.campaign.term.clone());
+            }
+            // missing: src_source_platform and src_id
+            if !edgee_event.context.page.search.is_empty() {
+                // analyze search string
+                // todo, add utm_ and lmd_
+                let qs = serde_qs::from_str(edgee_event.context.page.search.as_str());
+                if qs.is_ok() {
+                    let qs_map: HashMap<String, String> = qs.unwrap();
+                    for (key, value) in qs_map.iter() {
+                        // todo: activate if needed
+                        // if key.starts_with("utm_") {
+                        //     match key.as_str() {
+                        //         "utm_campaign" => data.src_campaign = Some(value.clone()),
+                        //         "utm_content" => data.src_content = Some(value.clone()),
+                        //         "utm_medium" => data.src_medium = Some(value.clone()),
+                        //         "utm_creative_format" => data.src_creative_format = Some(value.clone()),
+                        //         "utm_id" => data.src_id = Some(value.clone()),
+                        //         "utm_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                        //         "utm_source" => data.src_source = Some(value.clone()),
+                        //         "utm_source_platform" => data.src_source_platform = Some(value.clone()),
+                        //         "utm_term" => data.src_term = Some(value.clone()),
+                        //         _ => {
+                        //             // replace at_ with src_
+                        //             data.additional_fields
+                        //                 .insert(key.replace("utm_", "src_"), parse_value(value));
+                        //         }
+                        //     }
+                        // }
+                        if key.starts_with("at_") {
+                            match key.as_str() {
+                                "at_campaign" => data.src_campaign = Some(value.clone()),
+                                "at_content" => data.src_content = Some(value.clone()),
+                                "at_medium" => data.src_medium = Some(value.clone()),
+                                "at_creative_format" => data.src_creative_format = Some(value.clone()),
+                                "at_id" => data.src_id = Some(value.clone()),
+                                "at_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                                "at_source" => data.src_source = Some(value.clone()),
+                                "at_source_platform" => data.src_source_platform = Some(value.clone()),
+                                "at_term" => data.src_term = Some(value.clone()),
+                                _ => {
+                                    // replace at_ with src_
+                                    data.additional_fields
+                                        .insert(key.replace("at_", "src_"), parse_value(value));
+                                }
+                            }
+                        }
+                        if key.starts_with("lmd_") {
+                            match key.as_str() {
+                                "lmd_campaign" => data.src_campaign = Some(value.clone()),
+                                "lmd_content" => data.src_content = Some(value.clone()),
+                                "lmd_medium" => data.src_medium = Some(value.clone()),
+                                "lmd_creative_format" => data.src_creative_format = Some(value.clone()),
+                                "lmd_id" => data.src_id = Some(value.clone()),
+                                "lmd_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                                "lmd_source" => data.src_source = Some(value.clone()),
+                                "lmd_source_platform" => data.src_source_platform = Some(value.clone()),
+                                "lmd_term" => data.src_term = Some(value.clone()),
+                                _ => {
+                                    // replace lmd_ with src_
+                                    data.additional_fields
+                                        .insert(key.replace("lmd_", "src_"), parse_value(value));
+                                }
                             }
                         }
                     }
@@ -240,6 +304,11 @@ impl PianoEvent {
                     data.user_category = Some(value.clone());
                 }
             }
+        }
+
+        // Geo
+        if !edgee_event.context.client.country_code.is_empty() {
+            data.geo_country_code_alpha2 = Some(edgee_event.context.client.country_code.clone());
         }
 
         event.name = name.to_string();
@@ -327,7 +396,15 @@ pub(crate) struct PianoData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub src_medium: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_creative_format: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_marketing_tactic: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub src_source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_source_platform: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub src_term: Option<String>,
 
@@ -335,6 +412,9 @@ pub(crate) struct PianoData {
     pub user_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_category: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub geo_country_code_alpha2: Option<String>,
 
     #[serde(flatten)]
     pub additional_fields: HashMap<String, serde_json::Value>,
