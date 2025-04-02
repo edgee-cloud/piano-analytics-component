@@ -68,6 +68,11 @@ impl PianoEvent {
         // pageview_id (even if the event is not a pageview, we set the pageview_id to the event uuid)
         data.pageview_id = Some(edgee_event.uuid.clone());
 
+        // event_url_full
+        if !edgee_event.context.page.url.is_empty() {
+            data.event_url_full = Some(edgee_event.context.page.url.clone());
+        }
+
         // previous_url
         if !edgee_event.context.page.referrer.is_empty() {
             data.previous_url = Some(edgee_event.context.page.referrer.clone());
@@ -199,9 +204,16 @@ impl PianoEvent {
         if !edgee_event.context.campaign.content.is_empty() {
             data.src_content = Some(edgee_event.context.campaign.content.clone());
         }
+        if !edgee_event.context.campaign.creative_format.is_empty() {
+            data.src_creative_format = Some(edgee_event.context.campaign.creative_format.clone());
+        }
+        if !edgee_event.context.campaign.marketing_tactic.is_empty() {
+            data.src_marketing_tactic = Some(edgee_event.context.campaign.marketing_tactic.clone());
+        }
         if !edgee_event.context.campaign.term.is_empty() {
             data.src_term = Some(edgee_event.context.campaign.term.clone());
         }
+        // missing: src_source_platform and src_id
         if !edgee_event.context.page.search.is_empty() {
             // analyze search string
             // todo, add utm_ and lmd_
@@ -211,8 +223,15 @@ impl PianoEvent {
                 for (key, value) in qs_map.iter() {
                     if key.starts_with("at_") {
                         match key.as_str() {
-                            "at_medium" => data.src_medium = Some(value.clone()),
                             "at_campaign" => data.src_campaign = Some(value.clone()),
+                            "at_content" => data.src_content = Some(value.clone()),
+                            "at_medium" => data.src_medium = Some(value.clone()),
+                            "at_creative_format" => data.src_creative_format = Some(value.clone()),
+                            "at_id" => data.src_id = Some(value.clone()),
+                            "at_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                            "at_source" => data.src_source = Some(value.clone()),
+                            "at_source_platform" => data.src_source_platform = Some(value.clone()),
+                            "at_term" => data.src_term = Some(value.clone()),
                             _ => {
                                 // replace at_ with src_
                                 data.additional_fields
@@ -240,6 +259,11 @@ impl PianoEvent {
                     data.user_category = Some(value.clone());
                 }
             }
+        }
+
+        // Geo
+        if !edgee_event.context.client.country_code.is_empty() {
+            data.geo_country_code_alpha2 = Some(edgee_event.context.client.country_code.clone());
         }
 
         event.name = name.to_string();
@@ -327,7 +351,15 @@ pub(crate) struct PianoData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub src_medium: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_creative_format: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_marketing_tactic: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub src_source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src_source_platform: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub src_term: Option<String>,
 
@@ -335,6 +367,9 @@ pub(crate) struct PianoData {
     pub user_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_category: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub geo_country_code_alpha2: Option<String>,
 
     #[serde(flatten)]
     pub additional_fields: HashMap<String, serde_json::Value>,
