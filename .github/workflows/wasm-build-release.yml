@@ -6,6 +6,9 @@ on:
   release:
     types: [ published ]
 
+env:
+  EDGEE_API_TOKEN: ${{ secrets.EDGEE_API_TOKEN }}
+
 jobs:
   check:
     name: Build and release wasm component
@@ -15,7 +18,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: wasm32-wasip2
-      - uses: edgee-cloud/install-edgee-cli@v0.1.0
+      - uses: edgee-cloud/install-edgee-cli@v0.2.0
       - run: edgee component build
       - name: Upload WASM to release
         uses: actions/upload-release-asset@v1
@@ -26,3 +29,5 @@ jobs:
           asset_path: ./piano_analytics.wasm
           asset_name: piano_analytics.wasm
           asset_content_type: application/wasm
+      - name: Push to Edgee Component Registry
+        run: edgee component push edgee --yes --changelog "${{ github.event.release.body }}"
