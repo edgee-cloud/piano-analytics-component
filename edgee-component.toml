@@ -2,7 +2,7 @@ manifest-version = 1
 
 [component]
 name = "Piano Analytics"
-version = "1.1.0"
+version = "1.2.0"
 category = "data-collection"
 subcategory = "analytics"
 description = """
@@ -36,3 +36,9 @@ required = true
 description = """
 Collection endpoint for your organization"""
 
+[component.settings.piano_collect_utm_as_properties]
+title = "Collect UTM as properties"
+type = "bool"
+required = false
+description = """
+You can collect UTM parameters as Piano analytics properties."""
