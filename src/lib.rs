@@ -58,6 +58,32 @@ impl Guest for PianoComponent {
                 for (key, value) in data.properties.clone().iter() {
                     if key == "has_access" {
                         event.data.has_access = Some(value.clone());
+                    } else if key == "beneficiaire"
+                        || key == "consent_at"
+                        || key == "optin_lm"
+                        || key == "optin_lm_partenaires"
+                        || key == "site_level2"
+                        || key == "refresh"
+                    {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.to_string(), serde_json::Value::String(value.clone()));
+                    } else if key == "tags" {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                        let tags_array = value.split('|').map(|s| s.trim()).collect::<Vec<&str>>();
+                        event.data.additional_fields.insert(
+                            "tags_array".to_string(),
+                            serde_json::Value::Array(
+                                tags_array
+                                    .iter()
+                                    .map(|s| serde_json::Value::String(s.to_string()))
+                                    .collect(),
+                            ),
+                        );
                     } else {
                         event
                             .data
@@ -95,10 +121,38 @@ impl Guest for PianoComponent {
             // add custom page properties
             if !data.properties.is_empty() {
                 for (key, value) in data.properties.clone().iter() {
-                    event
-                        .data
-                        .additional_fields
-                        .insert(key.clone(), parse_value(value));
+                    if key == "tags" {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                        let tags_array = value.split('|').map(|s| s.trim()).collect::<Vec<&str>>();
+                        event.data.additional_fields.insert(
+                            "tags_array".to_string(),
+                            serde_json::Value::Array(
+                                tags_array
+                                    .iter()
+                                    .map(|s| serde_json::Value::String(s.to_string()))
+                                    .collect(),
+                            ),
+                        );
+                    } else if key == "beneficiaire"
+                        || key == "consent_at"
+                        || key == "optin_lm"
+                        || key == "optin_lm_partenaires"
+                        || key == "site_level2"
+                        || key == "refresh"
+                    {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.to_string(), serde_json::Value::String(value.clone()));
+                    } else {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                    }
                 }
             }
 
@@ -118,12 +172,14 @@ impl Guest for PianoComponent {
 fn build_edgee_request(piano_payload: PianoPayload) -> EdgeeRequest {
     let mut headers = vec![];
     headers.push((String::from("content-type"), String::from("text/plain")));
+    let cookie_string = format!("atid={}", piano_payload.id_client);
+    headers.push((String::from("cookie"), cookie_string));
 
     EdgeeRequest {
         method: exports::edgee::components::data_collection::HttpMethod::Post,
         url: format!(
-            "https://{}/event?s={}&idclient={}",
-            piano_payload.collection_domain, piano_payload.site_id, piano_payload.id_client
+            "https://{}/event?s={}",
+            piano_payload.collection_domain, piano_payload.site_id
         ),
         headers,
         forward_client_headers: true,

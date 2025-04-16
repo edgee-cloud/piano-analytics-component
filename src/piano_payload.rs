@@ -302,6 +302,30 @@ impl PianoEvent {
                                 }
                             }
                         }
+                        if key.starts_with("lmd_") {
+                            match key {
+                                "lmd_campaign" => data.src_campaign = Some(value.clone()),
+                                "lmd_content" => data.src_content = Some(value.clone()),
+                                "lmd_medium" => data.src_medium = Some(value.clone()),
+                                "lmd_creative_format" => {
+                                    data.src_creative_format = Some(value.clone())
+                                }
+                                "lmd_id" => data.src_id = Some(value.clone()),
+                                "lmd_marketing_tactic" => {
+                                    data.src_marketing_tactic = Some(value.clone())
+                                }
+                                "lmd_source" => data.src_source = Some(value.clone()),
+                                "lmd_source_platform" => {
+                                    data.src_source_platform = Some(value.clone())
+                                }
+                                "lmd_term" => data.src_term = Some(value.clone()),
+                                _ => {
+                                    // replace lmd_ with src_
+                                    data.additional_fields
+                                        .insert(key.replace("lmd_", "src_"), parse_value(value));
+                                }
+                            }
+                        }
                     }
                 }
             }
