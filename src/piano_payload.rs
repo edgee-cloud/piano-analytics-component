@@ -61,7 +61,11 @@ pub(crate) struct PianoEvent {
     pub data: PianoData,
 }
 impl PianoEvent {
-    pub(crate) fn new(name: &str, edgee_event: &Event, collect_utm_as_properties: bool) -> anyhow::Result<Self> {
+    pub(crate) fn new(
+        name: &str,
+        edgee_event: &Event,
+        collect_utm_as_properties: bool,
+    ) -> anyhow::Result<Self> {
         let mut event = PianoEvent::default();
 
         // Standard properties
@@ -228,7 +232,7 @@ impl PianoEvent {
             if qs.is_ok() {
                 let qs_map: HashMap<String, String> = qs.unwrap();
                 for (key, value) in qs_map.iter() {
-                    // key could start with ? 
+                    // key could start with ?
                     let key = key.trim_start_matches("?");
 
                     if key.starts_with("utm_") {
@@ -242,7 +246,9 @@ impl PianoEvent {
                             "utm_medium" => data.src_medium = Some(value.clone()),
                             "utm_creative_format" => data.src_creative_format = Some(value.clone()),
                             "utm_id" => data.src_id = Some(value.clone()),
-                            "utm_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                            "utm_marketing_tactic" => {
+                                data.src_marketing_tactic = Some(value.clone())
+                            }
                             "utm_source" => data.src_source = Some(value.clone()),
                             "utm_source_platform" => data.src_source_platform = Some(value.clone()),
                             "utm_term" => data.src_term = Some(value.clone()),
