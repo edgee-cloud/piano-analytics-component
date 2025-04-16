@@ -29,6 +29,7 @@ id = "piano"
 file = "/var/edgee/components/piano.wasm"
 settings.piano_site_id = "..."
 settings.piano_collection_domain = "..."
+settings.piano_collect_utm_as_properties = "true"
 ```
 
 ## Event Handling
@@ -57,11 +58,14 @@ id = "piano"
 file = "/var/edgee/components/piano.wasm"
 settings.piano_site_id = "..."
 settings.piano_collection_domain = "..."
+settings.piano_collect_utm_as_properties = "true"
 
 # Optional configurations
 settings.edgee_anonymization = true        # Enable/disable data anonymization in case of pending or denied consent
 settings.edgee_default_consent = "pending" # Set default consent status if not specified by the user
 ```
+
+To find out more about using `piano_collect_utm_as_properties`, please refer to [Piano documentation](https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/marketing-campaigns#collect-utm-as-properties).
 
 ### Event Controls
 Control which events are forwarded to Piano Analytics:
