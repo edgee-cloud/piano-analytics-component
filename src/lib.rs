@@ -22,8 +22,12 @@ impl Guest for PianoComponent {
                 PianoPayload::new(&edgee_event, settings).map_err(|e| e.to_string())?;
 
             // page_view event
-            let mut event =
-                PianoEvent::new("page.display", &edgee_event, payload.collect_utm_as_properties).map_err(|e| e.to_string())?;
+            let mut event = PianoEvent::new(
+                "page.display",
+                &edgee_event,
+                payload.collect_utm_as_properties,
+            )
+            .map_err(|e| e.to_string())?;
 
             if !data.name.is_empty() {
                 event.data.page_name = Some(data.name.clone());
@@ -71,8 +75,12 @@ impl Guest for PianoComponent {
                 PianoPayload::new(&edgee_event, settings).map_err(|e| e.to_string())?;
 
             // event
-            let mut event =
-                PianoEvent::new(data.name.as_str(), &edgee_event, payload.collect_utm_as_properties).map_err(|e| e.to_string())?;
+            let mut event = PianoEvent::new(
+                data.name.as_str(),
+                &edgee_event,
+                payload.collect_utm_as_properties,
+            )
+            .map_err(|e| e.to_string())?;
 
             // add custom page properties
             if !data.properties.is_empty() {
