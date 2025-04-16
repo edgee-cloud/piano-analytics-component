@@ -1,6 +1,7 @@
 mod piano_payload;
 
 use crate::piano_payload::parse_value;
+use exports::edgee::components::data_collection::Consent;
 use exports::edgee::components::data_collection::Data;
 use exports::edgee::components::data_collection::Dict;
 use exports::edgee::components::data_collection::EdgeeRequest;
@@ -38,7 +39,16 @@ impl Guest for PianoComponent {
                 event.data.page = Some(data.title.clone());
             }
             event.data.content_keywords = Some(data.keywords.clone());
-            event.data.event_url_full = Some(data.url.clone());
+
+            // event_url_full
+            if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
+                event.data.event_url_full = Some(data.url.clone());
+            } else {
+                let url = data.url.clone();
+                let url = url.split('?').next().unwrap_or(url.as_str());
+                event.data.event_url_full = Some(url.to_string());
+            }
+
             event.data.previous_url = Some(data.referrer.clone());
 
             event.data.has_access = Some("anon".to_string());
