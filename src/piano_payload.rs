@@ -14,6 +14,8 @@ pub(crate) struct PianoPayload {
     pub collection_domain: String,
     #[serde(skip)]
     pub id_client: String,
+    #[serde(skip)]
+    pub collect_utm_as_properties: bool,
     pub(crate) events: Vec<PianoEvent>,
 }
 
@@ -36,12 +38,18 @@ impl PianoPayload {
         }
         .to_string();
 
+        let collect_utm_as_properties = match cred.get("piano_collect_utm_as_properties") {
+            Some(value) => value == "true",
+            None => false,
+        };
+
         let id_client = edgee_event.context.user.edgee_id.to_string();
 
         Ok(Self {
             site_id,
             collection_domain,
             id_client,
+            collect_utm_as_properties,
             events: vec![],
         })
     }
@@ -53,7 +61,7 @@ pub(crate) struct PianoEvent {
     pub data: PianoData,
 }
 impl PianoEvent {
-    pub(crate) fn new(name: &str, edgee_event: &Event) -> anyhow::Result<Self> {
+    pub(crate) fn new(name: &str, edgee_event: &Event, collect_utm_as_properties: bool) -> anyhow::Result<Self> {
         let mut event = PianoEvent::default();
 
         // Standard properties
@@ -187,7 +195,7 @@ impl PianoEvent {
             data.visitor_privacy_mode = "exempt".to_string();
         }
 
-        // Campaign
+        // Campaign, only if consent is granted
         //
         // We first use the standard campaign parameters coming from UTM, then we override them with the at_* parameters
         // get all at_* properties from edgee_event.context.page.search and add them to data.src_* properties
@@ -216,13 +224,41 @@ impl PianoEvent {
         // missing: src_source_platform and src_id
         if !edgee_event.context.page.search.is_empty() {
             // analyze search string
-            // todo, add utm_ and lmd_
             let qs = serde_qs::from_str(edgee_event.context.page.search.as_str());
             if qs.is_ok() {
                 let qs_map: HashMap<String, String> = qs.unwrap();
                 for (key, value) in qs_map.iter() {
+                    // key could start with ? 
+                    let key = key.trim_start_matches("?");
+
+                    if key.starts_with("utm_") {
+                        if collect_utm_as_properties {
+                            data.additional_fields
+                                .insert(key.to_string(), parse_value(value));
+                        }
+                        match key {
+                            "utm_campaign" => data.src_campaign = Some(value.clone()),
+                            "utm_content" => data.src_content = Some(value.clone()),
+                            "utm_medium" => data.src_medium = Some(value.clone()),
+                            "utm_creative_format" => data.src_creative_format = Some(value.clone()),
+                            "utm_id" => data.src_id = Some(value.clone()),
+                            "utm_marketing_tactic" => data.src_marketing_tactic = Some(value.clone()),
+                            "utm_source" => data.src_source = Some(value.clone()),
+                            "utm_source_platform" => data.src_source_platform = Some(value.clone()),
+                            "utm_term" => data.src_term = Some(value.clone()),
+                            _ => {
+                                if !collect_utm_as_properties {
+                                    // replace utm_ with src_
+                                    data.additional_fields
+                                        .insert(key.replace("utm_", "src_"), parse_value(value));
+                                    data.additional_fields
+                                        .insert(key.to_string(), parse_value(value));
+                                }
+                            }
+                        }
+                    }
                     if key.starts_with("at_") {
-                        match key.as_str() {
+                        match key {
                             "at_campaign" => data.src_campaign = Some(value.clone()),
                             "at_content" => data.src_content = Some(value.clone()),
                             "at_medium" => data.src_medium = Some(value.clone()),
