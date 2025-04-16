@@ -199,7 +199,7 @@ impl PianoEvent {
             data.visitor_privacy_mode = "exempt".to_string();
         }
 
-        // Campaign, only if consent is granted
+        // Campaign
         //
         // We first use the standard campaign parameters coming from UTM, then we override them with the at_* parameters
         // get all at_* properties from edgee_event.context.page.search and add them to data.src_* properties
