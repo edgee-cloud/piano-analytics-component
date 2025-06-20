@@ -42,11 +42,7 @@ impl Guest for PianoComponent {
 
             // event_url_full
             if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
-                let event_url_full = format!(
-                    "{}{}",
-                    data.url.clone(),
-                    data.search.clone()
-                );
+                let event_url_full = format!("{}{}", data.url.clone(), data.search.clone());
                 event.data.event_url_full = Some(event_url_full);
             } else {
                 event.data.event_url_full = Some(data.url.clone());
