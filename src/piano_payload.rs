@@ -83,11 +83,14 @@ impl PianoEvent {
         // event_url_full
         if !edgee_event.context.page.url.is_empty() {
             if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
-                data.event_url_full = Some(edgee_event.context.page.url.clone());
+                let event_url_full = format!(
+                    "{}{}",
+                    edgee_event.context.page.url.clone(),
+                    edgee_event.context.page.search.clone()
+                );
+                data.event_url_full = Some(event_url_full);
             } else {
-                let url = edgee_event.context.page.url.clone();
-                let url = url.split('?').next().unwrap_or(url.as_str());
-                data.event_url_full = Some(url.to_string());
+                data.event_url_full = Some(edgee_event.context.page.url.clone());
             }
         }
 
