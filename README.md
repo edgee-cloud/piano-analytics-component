@@ -106,11 +106,9 @@ If the consent is not set, the component will use the default consent status.
 Prerequisites:
 - [Rust](https://www.rust-lang.org/tools/install)
 - WASM target: `rustup target add wasm32-wasip2`
-- wit-deps: `cargo install wit-deps`
 
 Build command:
 ```bash
-make wit-deps
 make build
 ```
 
