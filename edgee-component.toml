@@ -19,7 +19,7 @@ icon-path = "piano_analytics.png"
 language = "Rust"
 
 [component.build]
-command = "cargo build --target wasm32-wasip2 --release && cp ./target/wasm32-wasip2/release/piano_analytics_component.wasm piano_analytics.wasm"
+command = "cargo build --target wasm32-wasip2 --release && rm -f piano_analytics.wasm && cp ./target/wasm32-wasip2/release/piano_analytics_component.wasm piano_analytics.wasm"
 output_path = "piano_analytics.wasm"
 
 [component.settings.piano_site_id]
