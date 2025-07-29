@@ -52,6 +52,21 @@ impl Guest for PianoComponent {
 
             event.data.has_access = Some("anon".to_string());
 
+            // add custom page properties from context
+            let context_page = edgee_event.context.page;
+            if !context_page.properties.is_empty() {
+                for (key, value) in context_page.properties.clone().iter() {
+                    if key == "has_access" {
+                        event.data.has_access = Some(value.clone());
+                    } else {
+                        event
+                            .data
+                            .additional_fields
+                            .insert(key.clone(), parse_value(value));
+                    }
+                }
+            }
+
             // add custom page properties
             if !data.properties.is_empty() {
                 for (key, value) in data.properties.clone().iter() {
@@ -219,7 +234,23 @@ mod tests {
                 ("prop1".to_string(), "value1".to_string()),
                 ("prop2".to_string(), "10".to_string()),
                 ("has_access".to_string(), "true".to_string()),
+                ("special_property".to_string(), "42".to_string()),
             ],
+        }
+    }
+
+    fn sample_page_data_empty_properties() -> PageData {
+        PageData {
+            name: "page name".to_string(),
+            category: "category".to_string(),
+            keywords: vec!["value1".to_string(), "value2".into()],
+            title: "page title".to_string(),
+            url: "https://example.com/full-url?test=1".to_string(),
+            path: "/full-path".to_string(),
+            search: "?at_medium=abc&at_campaign=&at_something=true&at_something_else=false"
+                .to_string(),
+            referrer: "https://example.com/another-page".to_string(),
+            properties: vec![],
         }
     }
 
@@ -237,6 +268,25 @@ mod tests {
             timestamp_micros: 123,
             event_type: EventType::Page,
             data: Data::Page(sample_page_data()),
+            context: sample_context(edgee_id, locale, timezone, session_start),
+            consent,
+        }
+    }
+
+    fn sample_page_event_empty(
+        consent: Option<Consent>,
+        edgee_id: String,
+        locale: String,
+        timezone: String,
+        session_start: bool,
+    ) -> Event {
+        Event {
+            uuid: Uuid::new_v4().to_string(),
+            timestamp: 123,
+            timestamp_millis: 123,
+            timestamp_micros: 123,
+            event_type: EventType::Page,
+            data: Data::Page(sample_page_data_empty_properties()),
             context: sample_context(edgee_id, locale, timezone, session_start),
             consent,
         }
@@ -526,5 +576,30 @@ mod tests {
         let result = PianoComponent::track(event, settings);
         //println!("Error: {}", result.clone().err().unwrap().to_string().as_str());
         assert_eq!(result.clone().is_err(), false);
+    }
+
+    #[test]
+    fn page_with_context() {
+        let event = sample_page_event_empty(
+            Some(Consent::Granted),
+            "abc".to_string(),
+            "fr".to_string(),
+            "CET".to_string(),
+            true,
+        );
+        let settings = sample_settings();
+        let result = PianoComponent::page(event, settings);
+
+        assert_eq!(result.is_err(), false);
+        let edgee_request = result.unwrap();
+        assert_eq!(edgee_request.method, HttpMethod::Post);
+        assert!(!edgee_request.body.is_empty());
+        assert_eq!(
+            edgee_request
+                .url
+                .starts_with(&format!("https://{}", sample_collection_domain())),
+            true
+        );
+        assert!(edgee_request.body.contains("\"special_property\":42"))
     }
 }
