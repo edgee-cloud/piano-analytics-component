@@ -91,6 +91,16 @@ impl Guest for PianoComponent {
             )
             .map_err(|e| e.to_string())?;
 
+            if !edgee_event.context.page.title.is_empty() {
+                event.data.page_title_html = Some(edgee_event.context.page.title.clone());
+                event.data.content_title = Some(edgee_event.context.page.title.clone());
+                event.data.page = Some(edgee_event.context.page.title.clone());
+            }
+
+            if !edgee_event.context.page.path.is_empty() {
+                event.data.page = Some(data.name.clone());
+            }
+
             // add custom page properties
             if !data.properties.is_empty() {
                 for (key, value) in data.properties.clone().iter() {
