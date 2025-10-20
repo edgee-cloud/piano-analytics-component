@@ -83,14 +83,17 @@ impl PianoEvent {
         // event_url_full
         if !edgee_event.context.page.url.is_empty() {
             if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
-                let event_url_full = format!(
-                    "{}{}",
-                    edgee_event.context.page.url.clone(),
-                    edgee_event.context.page.search.clone()
-                );
-                data.event_url_full = Some(event_url_full);
-            } else {
                 data.event_url_full = Some(edgee_event.context.page.url.clone());
+            } else {
+                let url_without_qs = edgee_event
+                    .context
+                    .page
+                    .url
+                    .split('?')
+                    .next()
+                    .unwrap_or(&edgee_event.context.page.url)
+                    .to_string();
+                data.event_url_full = Some(url_without_qs);
             }
         }
 
@@ -240,9 +243,7 @@ impl PianoEvent {
             // missing: src_source_platform and src_id
             if !edgee_event.context.page.search.is_empty() {
                 // analyze search string
-                let qs = serde_qs::from_str(edgee_event.context.page.search.as_str());
-                if qs.is_ok() {
-                    let qs_map: HashMap<String, String> = qs.unwrap();
+                if let Ok(qs_map) = serde_qs::from_str::<HashMap<String, String>>(edgee_event.context.page.search.as_str()) {
                     for (key, value) in qs_map.iter() {
                         // key could start with ?
                         let key = key.trim_start_matches("?");

@@ -42,10 +42,17 @@ impl Guest for PianoComponent {
 
             // event_url_full
             if edgee_event.consent.is_some() && edgee_event.consent.unwrap() == Consent::Granted {
-                let event_url_full = format!("{}{}", data.url.clone(), data.search.clone());
-                event.data.event_url_full = Some(event_url_full);
-            } else {
                 event.data.event_url_full = Some(data.url.clone());
+            } else {
+                let url_without_qs = edgee_event
+                    .context
+                    .page
+                    .url
+                    .split('?')
+                    .next()
+                    .unwrap_or(&edgee_event.context.page.url)
+                    .to_string();
+                event.data.event_url_full = Some(url_without_qs);
             }
 
             event.data.previous_url = Some(data.referrer.clone());
