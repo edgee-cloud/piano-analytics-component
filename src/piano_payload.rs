@@ -243,7 +243,9 @@ impl PianoEvent {
             // missing: src_source_platform and src_id
             if !edgee_event.context.page.search.is_empty() {
                 // analyze search string
-                if let Ok(qs_map) = serde_qs::from_str::<HashMap<String, String>>(edgee_event.context.page.search.as_str()) {
+                if let Ok(qs_map) = serde_qs::from_str::<HashMap<String, String>>(
+                    edgee_event.context.page.search.as_str(),
+                ) {
                     for (key, value) in qs_map.iter() {
                         // key could start with ?
                         let key = key.trim_start_matches("?");
