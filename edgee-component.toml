@@ -6,12 +6,43 @@ version = "1.3.0"
 category = "data-collection"
 subcategory = "analytics"
 description = """
-Piano Analytics, known for its precise analytics and data management platform, can be integrated directly through Edgee,
-enabling you to harness its powerful analytics tools without the need for embedding any additional scripts on your site. This edge-based integration significantly boosts site performance while adhering to the highest standards of user privacy.
-> - Precise analytics. Get a complete understanding of your customers across devices and platforms.
-> - Data management platform. Understand the customer journey and improve marketing ROI.
-> - Edge-based integration. Harness powerful analytics tools without the need for embedding additional scripts on your site.
-> - Boost site performance. Adhere to the highest standards of user privacy."""
+## Overview
+
+The **Piano Analytics** component by Edgee enables precise analytics and data management by integrating Piano Analytics directly into your Edgee projects.
+This edge-based integration eliminates the need for embedding additional scripts on your site, significantly boosting performance while adhering to the highest standards of user privacy.
+
+---
+
+## Key Features & Benefits
+
+### Features
+
+- **Precise Analytics**: Gain a comprehensive understanding of your customers across devices and platforms.
+- **Data Management Platform**: Understand the customer journey and improve marketing ROI.
+- **Edge-Based Integration**: Harness powerful analytics tools without embedding additional scripts.
+- **Boost Site Performance**: Improve load speed while enhancing user privacy.
+
+### Benefits
+
+- **Server-Side Accuracy**: Enhanced data accuracy with server-side event processing.
+- **Low Latency**: Reduced latency by processing data closer to users.
+- **Simplified Setup**: No need for heavy SDKs or client scripts.
+- **Scalability**: Easy to maintain and scale as data volumes grow.
+
+---
+
+## Use Cases
+
+- **Real-Time Monitoring**: Track page views and events instantly at the edge.
+- **Campaign Tracking**: Measure ad performance and conversions across channels.
+- **Behavior Insights**: Analyze user interactions for UX and personalization.
+- **Privacy Compliance**: Respect consent settings from your CMP for GDPR/CCPA.
+- **Data Consolidation**: Send structured data to Piano for BI and reporting.
+
+---
+
+Additional resources: [Piano Analytics Collection API](https://developers.atinternet-solutions.com/piano-analytics/en/)
+"""
 documentation = "https://www.edgee.cloud/docs/components/data-collection/piano-analytics"
 repository = "https://github.com/edgee-cloud/piano-analytics-component"
 wit-version = "1.0.0"
